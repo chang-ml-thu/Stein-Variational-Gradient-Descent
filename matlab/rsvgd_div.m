@@ -1,4 +1,4 @@
-function  theta = svgd(theta0, dlog_p, max_iter, master_stepsize, h, auto_corr, method)
+function  theta = rsvgd_div(theta0, dlog_p, gradDet, max_iter, master_stepsize, h, auto_corr, method)
 
 %%%%%%%%
 % Bayesian Inference via Stein Variational Gradient Descent
@@ -16,12 +16,12 @@ function  theta = svgd(theta0, dlog_p, max_iter, master_stepsize, h, auto_corr, 
 %   -- theta: a set of particles that approximates p(x)
 %%%%%%%%
 
-if nargin < 4; master_stepsize = 0.1; end;
+if nargin < 5; master_stepsize = 0.1; end;
 
 % for the following parameters, we always use the default settings
-if nargin < 5; h = -1; end;
-if nargin < 6; auto_corr = 0.9; end;
-if nargin < 7; method = 'adagrad'; end;
+if nargin < 6; h = -1; end;
+if nargin < 7; auto_corr = 0.9; end;
+if nargin < 8; method = 'adagrad'; end;
 
 switch lower(method)
     
@@ -33,7 +33,7 @@ switch lower(method)
         historial_grad = 0;
         
         for iter = 1:max_iter
-            grad = OptVecField(theta, dlog_p, h);   %\Phi(theta)
+            grad = OptVecField(theta, dlog_p, gradDet, h);   %\Phi(theta)
             if historial_grad == 0
                 historial_grad = historial_grad + grad.^2;
             else
@@ -49,7 +49,7 @@ end
 end
 
 
-function [Akxy, info] = OptVecField(x, dlog_p, h)
+function [Akxy, info] = OptVecField(x, dlog_p, gradDet, h)
 %%%%%%%%%%%%%%%%%%%%%%
 % Input:
 %    -- x: particles, n*d matrix, where n is the number of particles and d is the dimension of x 
@@ -62,7 +62,7 @@ function [Akxy, info] = OptVecField(x, dlog_p, h)
 %    --info: kernel bandwidth
 %%%%%%%%%%%%%%%%%%%%%%
 
-if nargin < 3; h = -1; end % median trick as default
+if nargin < 4; h = -1; end % median trick as default
 
 [n, d] = size(x);
 % Using rbf kernel as default
@@ -78,7 +78,7 @@ end
 
 Kxy = exp(-H/(2*h^2));   % calculate rbf kernel
 dxKxy = (bsxfun(@times, x, sum(Kxy,2)) - Kxy*x) / h^2;
-Akxy = (Kxy * dlog_p(x) + dxKxy)/n;
+Akxy = (Kxy * (dlog_p(x) + gradDet(x)) + dxKxy)/n;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 info.bandwidth = h;
 end
