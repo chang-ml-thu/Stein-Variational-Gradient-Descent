@@ -16,12 +16,10 @@ function  theta = rsvgd_nat(theta0, dlog_p, gradDet, Ginv, gradGinv, max_iter, m
 %   -- theta: a set of particles that approximates p(x)
 %%%%%%%%
 
-if nargin < 7; master_stepsize = 0.1; end;
-
-% for the following parameters, we always use the default settings
-if nargin < 8; h = -1; end;
-if nargin < 9; auto_corr = 0.9; end;
-if nargin < 10; method = 'adagrad'; end;
+if ~exist('master_stepsize','var') || isempty(master_stepsize); master_stepsize = 0.1; end;
+if ~exist('h','var') || isempty(h); h = -1; end;
+if ~exist('auto_corr','var') || isempty(auto_corr); auto_corr = 0.9; end;
+if ~exist('method','var') || isempty(method); method = 'adagrad'; end;
 
 switch lower(method)
     
@@ -41,6 +39,13 @@ switch lower(method)
             end
             adj_grad = grad ./ (fudge_factor + sqrt(historial_grad));
             theta = theta + master_stepsize * adj_grad; % update
+        end
+        
+	case 'fixed'
+		theta = theta0;
+		for iter = 1:max_iter
+            grad = OptVecField(theta, dlog_p, gradDet, Ginv, gradGinv, h);   %\Phi(theta)
+            theta = theta + master_stepsize * grad; % update
         end
         
     otherwise

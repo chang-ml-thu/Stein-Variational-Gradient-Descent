@@ -16,12 +16,10 @@ function  theta = svgd(theta0, dlog_p, max_iter, master_stepsize, h, auto_corr, 
 %   -- theta: a set of particles that approximates p(x)
 %%%%%%%%
 
-if nargin < 4; master_stepsize = 0.1; end;
-
-% for the following parameters, we always use the default settings
-if nargin < 5; h = -1; end;
-if nargin < 6; auto_corr = 0.9; end;
-if nargin < 7; method = 'adagrad'; end;
+if ~exist('master_stepsize','var') || isempty(master_stepsize); master_stepsize = 0.1; end;
+if ~exist('h','var') || isempty(h); h = -1; end;
+if ~exist('auto_corr','var') || isempty(auto_corr); auto_corr = 0.9; end;
+if ~exist('method','var') || isempty(method); method = 'adagrad'; end;
 
 switch lower(method)
     
@@ -41,6 +39,13 @@ switch lower(method)
             end
             adj_grad = grad ./ (fudge_factor + sqrt(historial_grad));
             theta = theta + master_stepsize * adj_grad; % update
+        end
+		
+	case 'fixed'
+		theta = theta0;
+		for iter = 1:max_iter
+            grad = OptVecField(theta, dlog_p, h);   %\Phi(theta)
+            theta = theta + master_stepsize * grad; % update
         end
         
     otherwise

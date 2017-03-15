@@ -15,12 +15,12 @@ m2 = data_x' * data_x;
 
 sig0 = 2;
 sigx = data_sig;
-M = 10; eps = 0.001; % h = 0.1;
+M = 30; eps = 0.0015; % h = 0.1;
 xbnd = [-5,3]; ybnd = [-3, 3];
 truew = [0.1, 0.1];
-xy_init = bsxfun(@plus, randn(M,2)*1e-1, [-2,0]);
+xy_init = bsxfun(@plus, randn(M,2)*1e-1, [0,0]);
 % xy_init = randn(M,2) * sig0; % from the prior
-num_iter = 10; num_cont = 10; ssize = 150;
+num_iter = 100; num_cont = 10; ssize = 150;
 
 %%%%%%%%%%%%%%
 truex = xbnd(1):truew(1):xbnd(2);
@@ -33,7 +33,8 @@ dlog_p = @(x)dlog_p_warpN(x, m1, data_N, sig0, sigx);
 xy = xy_init;
 figure;
 for i = 1:9
-	xy = svgd(xy, dlog_p, num_iter, eps);
+	% xy = svgd(xy, dlog_p, num_iter, eps, [], [], 'adagrad');
+	xy = svgd(xy, dlog_p, num_iter, eps, [], [], 'fixed');
 	subplot(3,3,i);
 	contour(truex, truey, truep, num_cont);
     hold on;
@@ -46,7 +47,8 @@ gradDet = @(x)gradDet_warpN(x, data_N, sig0, sigx);
 xy = xy_init;
 figure;
 for i = 1:9
-	xy = rsvgd_div(xy, dlog_p, gradDet, num_iter, eps);
+	% xy = rsvgd_div(xy, dlog_p, gradDet, num_iter, eps, [], [], 'adagrad');
+	xy = rsvgd_div(xy, dlog_p, gradDet, num_iter, eps, [], [], 'fixed');
 	subplot(3,3,i);
 	contour(truex, truey, truep, num_cont);
     hold on;
@@ -60,7 +62,8 @@ Ginv = @(x)Ginv_warpN(x, data_N, sigx, sig0);
 xy = xy_init;
 figure;
 for i = 1:9
-	xy = rsvgd_nat(xy, dlog_p, gradDet, Ginv, num_iter, eps);
+	% xy = rsvgd_nat(xy, dlog_p, gradDet, Ginv, num_iter, eps, [], [], 'adagrad');
+	xy = rsvgd_nat(xy, dlog_p, gradDet, Ginv, num_iter, eps, [], [], 'fixed');
 	subplot(3,3,i);
 	contour(truex, truey, truep, num_cont);
     hold on;
@@ -75,7 +78,8 @@ gradGinv = @(x)gradGinv_warpN(x, data_N, sig0, sigx);
 xy = xy_init;
 figure;
 for i = 1:9
-	xy = rsvgd_spe(xy, dlog_p, gradDet, Ginv, gradGinv, num_iter, eps);
+	% xy = rsvgd_spe(xy, dlog_p, gradDet, Ginv, gradGinv, num_iter, eps, [], [], 'adagrad');
+	xy = rsvgd_spe(xy, dlog_p, gradDet, Ginv, gradGinv, num_iter, eps, [], [], 'fixed');
 	subplot(3,3,i);
 	contour(truex, truey, truep, num_cont);
     hold on;

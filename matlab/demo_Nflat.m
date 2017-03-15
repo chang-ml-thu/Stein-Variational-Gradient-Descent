@@ -32,7 +32,8 @@ dlog_p = @(x)dlog_p_Nflat(x, m1, m2, data_N);
 xy = xy_init;
 figure;
 for i = 1:9
-	xy = svgd(xy, dlog_p, num_iter, eps);
+	% xy = svgd(xy, dlog_p, num_iter, eps, [], [], 'adagrad');
+	xy = svgd(xy, dlog_p, num_iter, eps, [], [], 'fixed');
 	subplot(3,3,i);
 	contour(truex, truey, truep, num_cont);
     hold on;
@@ -45,7 +46,8 @@ gradDet = @gradDet_Nflat;
 xy = xy_init;
 figure;
 for i = 1:9
-	xy = rsvgd_div(xy, dlog_p, gradDet, num_iter, eps);
+	% xy = rsvgd_div(xy, dlog_p, gradDet, num_iter, eps, [], [], 'adagrad');
+	xy = rsvgd_div(xy, dlog_p, gradDet, num_iter, eps, [], [], 'fixed');
 	subplot(3,3,i);
 	contour(truex, truey, truep, num_cont);
     hold on;
@@ -59,7 +61,8 @@ Ginv = @(x)Ginv_Nflat(x, data_N);
 xy = xy_init;
 figure;
 for i = 1:9
-	xy = rsvgd_nat(xy, dlog_p, gradDet, Ginv, num_iter, eps);
+	% xy = rsvgd_nat(xy, dlog_p, gradDet, Ginv, num_iter, eps, [], [], 'adagrad');
+	xy = rsvgd_nat(xy, dlog_p, gradDet, Ginv, num_iter, eps, [], [], 'fixed');
 	subplot(3,3,i);
 	contour(truex, truey, truep, num_cont);
     hold on;
@@ -74,7 +77,8 @@ gradGinv = @(x)gradGinv_Nflat(x, data_N);
 xy = xy_init;
 figure;
 for i = 1:9
-	xy = rsvgd_spe(xy, dlog_p, gradDet, Ginv, gradGinv, num_iter, eps);
+	% xy = rsvgd_spe(xy, dlog_p, gradDet, Ginv, gradGinv, num_iter, eps, [], [], 'adagrad');
+	xy = rsvgd_spe(xy, dlog_p, gradDet, Ginv, gradGinv, num_iter, eps, [], [], 'fixed');
 	subplot(3,3,i);
 	contour(truex, truey, truep, num_cont);
     hold on;
